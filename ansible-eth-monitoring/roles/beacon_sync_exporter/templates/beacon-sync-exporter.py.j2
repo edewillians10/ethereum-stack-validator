@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+import json
+import os
+import sys
+import tempfile
+import urllib.request
+
+
+def write_metrics(output_path, payload):
+    lines = [
+        "# HELP eth_beacon_sync_up Beacon sync endpoint reachable (1) or not (0).",
+        "# TYPE eth_beacon_sync_up gauge",
+        f"eth_beacon_sync_up {payload['up']}",
+        "# HELP eth_beacon_is_syncing Beacon reports syncing (1) or not (0).",
+        "# TYPE eth_beacon_is_syncing gauge",
+        f"eth_beacon_is_syncing {payload['is_syncing']}",
+        "# HELP eth_beacon_is_optimistic Beacon reports optimistic state (1) or not (0).",
+        "# TYPE eth_beacon_is_optimistic gauge",
+        f"eth_beacon_is_optimistic {payload['is_optimistic']}",
+        "# HELP eth_beacon_el_offline Execution layer offline (1) or not (0).",
+        "# TYPE eth_beacon_el_offline gauge",
+        f"eth_beacon_el_offline {payload['el_offline']}",
+        "# HELP eth_beacon_head_slot Beacon head slot.",
+        "# TYPE eth_beacon_head_slot gauge",
+        f"eth_beacon_head_slot {payload['head_slot']}",
+        "# HELP eth_beacon_sync_distance Beacon sync distance (slots).",
+        "# TYPE eth_beacon_sync_distance gauge",
+        f"eth_beacon_sync_distance {payload['sync_distance']}",
+    ]
+
+    output_dir = os.path.dirname(output_path)
+    with tempfile.NamedTemporaryFile("w", dir=output_dir, delete=False) as tmp:
+        tmp.write("\n".join(lines) + "\n")
+        tmp_path = tmp.name
+    os.replace(tmp_path, output_path)
+
+
+def fetch_sync_data(api_url):
+    try:
+        with urllib.request.urlopen(api_url, timeout=5) as resp:
+            raw = resp.read().decode("utf-8")
+        data = json.loads(raw).get("data", {})
+        return {
+            "up": 1,
+            "is_syncing": 1 if data.get("is_syncing") else 0,
+            "is_optimistic": 1 if data.get("is_optimistic") else 0,
+            "el_offline": 1 if data.get("el_offline") else 0,
+            "head_slot": int(data.get("head_slot", 0)),
+            "sync_distance": int(data.get("sync_distance", 0)),
+        }
+    except Exception:
+        return {
+            "up": 0,
+            "is_syncing": 0,
+            "is_optimistic": 0,
+            "el_offline": 0,
+            "head_slot": 0,
+            "sync_distance": 0,
+        }
+
+
+def main():
+    api_url = os.environ.get("BEACON_SYNC_API_URL")
+    output_path = os.environ.get("BEACON_SYNC_OUTPUT_PATH")
+    if not api_url or not output_path:
+        print("Missing BEACON_SYNC_API_URL or BEACON_SYNC_OUTPUT_PATH", file=sys.stderr)
+        sys.exit(1)
+
+    payload = fetch_sync_data(api_url)
+    write_metrics(output_path, payload)
+
+
+if __name__ == "__main__":
+    main()

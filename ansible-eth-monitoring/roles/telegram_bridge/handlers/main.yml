@@ -1,0 +1,8 @@
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: restart telegram alert bridge
+  systemd:
+    name: telegram-alert-bridge
+    state: restarted

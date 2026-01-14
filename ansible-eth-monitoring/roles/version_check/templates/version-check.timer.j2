@@ -1,0 +1,10 @@
+[Unit]
+Description=Ethereum Client Version Check Timer
+
+[Timer]
+OnUnitActiveSec={{ version_check_interval }}
+Persistent=true
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target

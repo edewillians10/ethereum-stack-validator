@@ -1,0 +1,9 @@
+# ethereum paths (treasure map for your data, eh)
+ethereum_base_dir: /var/lib/ethereum
+
+execution_dir: "{{ ethereum_base_dir }}/execution"
+consensus_dir: "{{ ethereum_base_dir }}/consensus"
+validator_dir: "{{ ethereum_base_dir }}/validator"
+
+# limits (so the kernel doesn’t file a grievance, buddy)
+ethereum_nofile_limit: 1048576

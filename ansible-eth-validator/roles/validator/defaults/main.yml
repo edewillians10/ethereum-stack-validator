@@ -1,0 +1,24 @@
+# validator user (keeps keys cozy like a winter toque)
+validator_user: validator
+validator_group: validator
+
+# paths (validator’s home rink)
+ethereum_base_dir: /var/lib/ethereum
+
+validator_dir: "{{ ethereum_base_dir }}/validator"
+consensus_dir: "{{ ethereum_base_dir }}/consensus"
+
+# lighthouse (skates for the validator, eh)
+lighthouse_bin: /opt/lighthouse/lighthouse
+
+# network (which ice you’re skating on)
+validator_network: "{{ eth_network | default('holesky') }}"
+
+# beacon api (coach’s whistle for duties)
+beacon_api_endpoint: "http://127.0.0.1:5052"
+
+# security (doppelganger bouncer at the door)
+enable_doppelganger_protection: true
+
+# fee recipient (where your coffee money lands)
+validator_fee_recipient: "0x0000000000000000000000000000000000000000"

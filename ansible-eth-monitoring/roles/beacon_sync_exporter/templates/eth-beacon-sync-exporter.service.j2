@@ -1,0 +1,12 @@
+[Unit]
+Description=Export Lighthouse beacon sync status to node_exporter textfile
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=prometheus
+Group=prometheus
+Environment=BEACON_SYNC_API_URL={{ beacon_sync_api_url }}
+Environment=BEACON_SYNC_OUTPUT_PATH={{ beacon_sync_output_path }}
+ExecStart=/usr/bin/python3 /opt/eth-monitoring/beacon-sync-exporter.py

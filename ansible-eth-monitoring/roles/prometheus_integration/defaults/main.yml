@@ -1,0 +1,8 @@
+prometheus_config_path: /etc/prometheus/prometheus.yml
+prometheus_rules_dir: /etc/prometheus/rules
+alertmanager_listen_address: 127.0.0.1
+alertmanager_port: 9093
+
+alert_execution_min_peers: 8
+alert_consensus_min_peers: 8
+alert_beacon_sync_grace: "15m"

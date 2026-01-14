@@ -1,0 +1,31 @@
+[Unit]
+Description=Lighthouse Validator Client (Ethereum {{ validator_network }})
+After=network-online.target lighthouse-beacon.service
+Wants=network-online.target
+Requires=lighthouse-beacon.service
+
+[Service]
+User={{ validator_user }}
+Group={{ validator_group }}
+Type=simple
+Restart=always
+RestartSec=5
+LimitNOFILE=1048576
+
+ExecStart={{ lighthouse_bin }} validator_client \
+  --network {{ validator_network }} \
+  --datadir {{ validator_dir }} \
+  --beacon-nodes {{ beacon_api_endpoint }} \
+{% if enable_doppelganger_protection %}
+  --enable-doppelganger-protection \
+{% endif %}
+  --suggested-fee-recipient {{ validator_fee_recipient }}{% if lighthouse_metrics_enabled | default(false) %} \
+  --metrics \
+  --metrics-address {{ lighthouse_metrics_address | default('127.0.0.1') }} \
+  --metrics-port {{ lighthouse_validator_metrics_port | default('5064') }}{% endif %}
+
+TimeoutStopSec=120
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target

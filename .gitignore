@@ -1,0 +1,17 @@
+# ansible artifacts
+*.retry
+
+# editor cruft
+.DS_Store
+*.swp
+*.swo
+*~
+
+# python/venv
+__pycache__/
+.venv/
+venv/
+
+# logs and temp
+*.log
+tmp/

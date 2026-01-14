@@ -1,0 +1,58 @@
+- name: Ethereum Validator Monitoring
+  hosts: ethereum
+  become: true
+
+  vars:
+    monitoring_enabled: true
+    monitoring_grafana_enabled: true
+    nethermind_metrics_enabled: true
+    lighthouse_metrics_enabled: true
+
+  tasks:
+    - name: Apply execution client changes for metrics
+      include_role:
+        name: execution
+
+    - name: Apply consensus client changes for metrics
+      include_role:
+        name: consensus
+
+    - name: Apply validator client changes for metrics
+      include_role:
+        name: validator
+
+    - name: Run monitoring role
+      include_role:
+        name: monitoring
+
+    - name: Wait for beacon API to be reachable
+      wait_for:
+        host: "{{ beacon_api_host | default('127.0.0.1') }}"
+        port: "{{ beacon_api_port | default(5052) }}"
+        state: started
+        delay: 2
+        timeout: 60
+      failed_when: false
+
+    - name: Check beacon sync status
+      uri:
+        url: "http://{{ beacon_api_host | default('127.0.0.1') }}:{{ beacon_api_port | default(5052) }}/eth/v1/node/syncing"
+        return_content: true
+        status_code: 200
+      register: beacon_sync_status
+      failed_when: false
+
+    - name: Report beacon sync status
+      debug:
+        msg: "Beacon syncing: {{ beacon_sync_status.json.data.is_syncing | default('unknown') }}"
+
+    - name: Wait for beacon sync to complete
+      uri:
+        url: "http://{{ beacon_api_host | default('127.0.0.1') }}:{{ beacon_api_port | default(5052) }}/eth/v1/node/syncing"
+        return_content: true
+        status_code: 200
+      register: beacon_sync_wait
+      until: beacon_sync_wait.json.data.is_syncing == false
+      retries: "{{ (beacon_wait_timeout | int // beacon_wait_delay | int) | max(1) }}"
+      delay: "{{ beacon_wait_delay }}"
+      when: beacon_wait_for_sync | default(false)

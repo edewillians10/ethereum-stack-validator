@@ -1,0 +1,6 @@
+mev_enabled: false
+mev_boost_download_url: ""
+mev_boost_checksum: ""
+mev_boost_bin: /usr/local/bin/mev-boost
+mev_boost_user: mevboost
+mev_boost_group: mevboost

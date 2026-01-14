@@ -1,0 +1,8 @@
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: restart lighthouse beacon
+  systemd:
+    name: lighthouse-beacon
+    state: restarted

@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+import json
+import os
+import re
+import subprocess
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+
+BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
+
+NETHERMIND_BIN = os.environ.get("NETHERMIND_BIN_PATH", "/opt/nethermind/nethermind")
+LIGHTHOUSE_BIN = os.environ.get("LIGHTHOUSE_BIN_PATH", "/opt/lighthouse/lighthouse")
+
+NETHERMIND_API = os.environ.get("NETHERMIND_REPO_API", "")
+LIGHTHOUSE_API = os.environ.get("LIGHTHOUSE_REPO_API", "")
+
+STATE_PATH = Path("/var/lib/eth-monitoring/version-check.json")
+
+
+def send_message(text):
+    if not BOT_TOKEN or not CHAT_ID:
+        return
+    data = urllib.parse.urlencode({"chat_id": CHAT_ID, "text": text}).encode()
+    req = urllib.request.Request(
+        "https://api.telegram.org/bot{}/sendMessage".format(BOT_TOKEN),
+        data=data,
+    )
+    try:
+        urllib.request.urlopen(req, timeout=10)
+    except Exception:
+        pass
+
+
+def parse_version(text):
+    match = re.search(r"(?:v)?(\\d+\\.\\d+\\.\\d+)", text)
+    if not match:
+        return None
+    return tuple(int(p) for p in match.group(1).split("."))
+
+
+def get_installed_version(cmd):
+    try:
+        output = subprocess.check_output([cmd, "--version"], stderr=subprocess.STDOUT, text=True)
+    except Exception:
+        return None
+    return parse_version(output)
+
+
+def get_latest_version(api_url):
+    if not api_url:
+        return None
+    try:
+        with urllib.request.urlopen(api_url, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return None
+    tag = data.get("tag_name", "")
+    return parse_version(tag)
+
+
+def load_state():
+    if not STATE_PATH.exists():
+        return {}
+    try:
+        return json.loads(STATE_PATH.read_text())
+    except Exception:
+        return {}
+
+
+def save_state(state):
+    STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    STATE_PATH.write_text(json.dumps(state))
+
+
+def check_component(name, installed, latest, state):
+    if installed is None or latest is None:
+        return
+    if latest <= installed:
+        return
+    last_alert = state.get(name)
+    if last_alert == list(latest):
+        return
+    message = (
+        "[UPDATE] New version available for {}\\n"
+        "installed: {}\\nlatest: {}"
+    ).format(
+        name,
+        ".".join(str(x) for x in installed),
+        ".".join(str(x) for x in latest),
+    )
+    send_message(message)
+    state[name] = list(latest)
+
+
+def main():
+    state = load_state()
+    nethermind_installed = get_installed_version(NETHERMIND_BIN)
+    lighthouse_installed = get_installed_version(LIGHTHOUSE_BIN)
+    nethermind_latest = get_latest_version(NETHERMIND_API)
+    lighthouse_latest = get_latest_version(LIGHTHOUSE_API)
+    check_component("nethermind", nethermind_installed, nethermind_latest, state)
+    check_component("lighthouse", lighthouse_installed, lighthouse_latest, state)
+    save_state(state)
+
+
+if __name__ == "__main__":
+    main()

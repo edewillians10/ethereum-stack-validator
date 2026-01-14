@@ -1,0 +1,8 @@
+telegram_bot_token: "8548158344:AAHGiwsr9iWSV61L_pVCejwG86efELU74bw"
+telegram_chat_id: "448721770"
+version_check_enabled: true
+version_check_interval: "1h"
+nethermind_bin_path: /opt/nethermind/nethermind
+lighthouse_bin_path: /opt/lighthouse/lighthouse
+nethermind_repo_api: "https://api.github.com/repos/NethermindEth/nethermind/releases/latest"
+lighthouse_repo_api: "https://api.github.com/repos/sigp/lighthouse/releases/latest"

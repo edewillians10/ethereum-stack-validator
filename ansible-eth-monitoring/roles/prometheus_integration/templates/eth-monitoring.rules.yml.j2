@@ -1,0 +1,65 @@
+groups:
+  - name: eth-monitoring-core
+    rules:
+      - alert: ExecutionClientDown
+        expr: up{job="nethermind"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Execution client down"
+          description: "Nethermind is down on {% raw %}{{$labels.instance}}{% endraw %}."
+
+      - alert: ConsensusClientDown
+        expr: up{job="lighthouse_beacon"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Consensus client down"
+          description: "Lighthouse beacon is down on {% raw %}{{$labels.instance}}{% endraw %}."
+
+      - alert: ValidatorClientDown
+        expr: up{job="lighthouse_validator"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Validator client down"
+          description: "Lighthouse validator is down on {% raw %}{{$labels.instance}}{% endraw %}."
+
+      - alert: ExecutionPeersLow
+        expr: ethereum_peer_count < {{ alert_execution_min_peers }}
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low execution peers"
+          description: "Execution peers below {{ alert_execution_min_peers }} on {% raw %}{{$labels.instance}}{% endraw %}."
+
+      - alert: ConsensusPeersLow
+        expr: libp2p_peers < {{ alert_consensus_min_peers }}
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low consensus peers"
+          description: "Consensus peers below {{ alert_consensus_min_peers }} on {% raw %}{{$labels.instance}}{% endraw %}."
+
+      - alert: BeaconNotSynced
+        expr: sync_eth2_synced == 0
+        for: {{ alert_beacon_sync_grace }}
+        labels:
+          severity: warning
+        annotations:
+          summary: "Beacon not synced"
+          description: "Beacon still syncing on {% raw %}{{$labels.instance}}{% endraw %}."
+
+      - alert: BeaconSyncStalled
+        expr: eth_beacon_is_syncing == 1 and (-deriv(eth_beacon_sync_distance[{{ alert_beacon_sync_stall_window }}]) < {{ alert_beacon_sync_min_rate }})
+        for: {{ alert_beacon_sync_stall_for }}
+        labels:
+          severity: warning
+        annotations:
+          summary: "Beacon sync stalled"
+          description: "Sync distance is not decreasing fast enough on {% raw %}{{$labels.instance}}{% endraw %}."

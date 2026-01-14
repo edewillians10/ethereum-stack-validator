@@ -1,0 +1,11 @@
+- name: Ethereum Monitoring Add-ons
+  hosts: ethereum
+  become: true
+
+  roles:
+    - prometheus_integration
+    - beacon_sync_exporter
+    - grafana_dashboards
+    - alertmanager
+    - telegram_bridge
+    - version_check

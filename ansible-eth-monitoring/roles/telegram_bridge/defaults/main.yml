@@ -1,0 +1,4 @@
+telegram_bot_token: "8548158344:AAHGiwsr9iWSV61L_pVCejwG86efELU74bw"
+telegram_chat_id: "448721770"
+alertmanager_webhook_bind: 127.0.0.1
+alertmanager_webhook_port: 9095

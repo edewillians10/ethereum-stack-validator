@@ -1,0 +1,5 @@
+beacon_sync_exporter_enabled: true
+beacon_sync_exporter_interval: 30s
+beacon_sync_api_url: "http://127.0.0.1:5052/eth/v1/node/syncing"
+node_exporter_textfile_dir: /var/lib/node_exporter
+beacon_sync_output_path: "{{ node_exporter_textfile_dir }}/eth_beacon_sync.prom"

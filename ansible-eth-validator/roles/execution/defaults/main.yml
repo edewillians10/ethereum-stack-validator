@@ -1,0 +1,28 @@
+# execution user (keeps the node polite, eh)
+execution_user: execution
+execution_group: execution
+
+# paths (where execution hangs its toque)
+ethereum_base_dir: /var/lib/ethereum
+
+execution_dir: "{{ ethereum_base_dir }}/execution"
+nethermind_data_dir: "{{ execution_dir }}"
+
+jwt_secret_path: "{{ ethereum_base_dir }}/jwt.hex"
+
+# nethermind (engine that loves a good timbit)
+nethermind_version: "1.35.8"
+nethermind_release_id: "c066aee2"
+nethermind_base_dir: /opt/nethermind
+nethermind_bin: "{{ nethermind_base_dir }}/nethermind"
+nethermind_download_url: "https://github.com/NethermindEth/nethermind/releases/download/{{ nethermind_version }}/nethermind-{{ nethermind_version }}-{{ nethermind_release_id }}-linux-x64.zip"
+nethermind_checksum: ""
+nethermind_extract_dir: "/tmp/nethermind-extract-{{ nethermind_version }}"
+
+# network (p2p shenanigans, but friendly)
+nethermind_network: "{{ eth_network | default('holesky') }}"
+nethermind_p2p_port: 30303
+
+# engine api (execution hotline, eh)
+engine_api_host: 127.0.0.1
+engine_api_port: 8551

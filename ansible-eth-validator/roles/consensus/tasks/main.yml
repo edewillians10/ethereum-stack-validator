@@ -1,0 +1,80 @@
+- name: Create Lighthouse base directory
+  file:
+    path: "{{ lighthouse_base_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  tags: consensus
+
+- name: Download Lighthouse {{ lighthouse_version }}
+  get_url:
+    url: "https://github.com/sigp/lighthouse/releases/download/{{ lighthouse_version }}/lighthouse-{{ lighthouse_version }}-x86_64-unknown-linux-gnu.tar.gz"
+    dest: "/tmp/lighthouse.tar.gz"
+    mode: "0644"
+    checksum: "{{ lighthouse_checksum | default(omit) }}"
+  tags: consensus
+
+- name: Create temporary extract directory
+  file:
+    path: "{{ lighthouse_extract_dir }}"
+    state: directory
+    mode: "0755"
+  tags: consensus
+
+- name: Extract Lighthouse archive
+  unarchive:
+    src: "/tmp/lighthouse.tar.gz"
+    dest: "{{ lighthouse_extract_dir }}"
+    remote_src: yes
+  tags: consensus
+
+- name: Find Lighthouse binary
+  find:
+    paths: "{{ lighthouse_extract_dir }}"
+    patterns: lighthouse
+    file_type: file
+  register: lighthouse_found
+  tags: consensus
+
+- name: Fail if Lighthouse binary not found
+  fail:
+    msg: "Lighthouse binary not found after extraction"
+  when: lighthouse_found.matched == 0
+  tags: consensus
+
+- name: Install Lighthouse binary to final location
+  copy:
+    src: "{{ lighthouse_found.files[0].path }}"
+    dest: "{{ lighthouse_bin }}"
+    owner: root
+    group: root
+    mode: "0755"
+    remote_src: yes
+  tags: consensus
+
+- name: Ensure consensus data directory ownership
+  file:
+    path: "{{ consensus_dir }}"
+    state: directory
+    owner: "{{ consensus_user }}"
+    group: "{{ consensus_group }}"
+    recurse: yes
+  tags: consensus
+
+- name: Install Lighthouse Beacon Node systemd service
+  template:
+    src: lighthouse-beacon.service.j2
+    dest: /etc/systemd/system/lighthouse-beacon.service
+    mode: "0644"
+  notify:
+    - reload systemd
+    - restart lighthouse beacon
+  tags: consensus
+
+- name: Enable Lighthouse Beacon Node
+  systemd:
+    name: lighthouse-beacon
+    enabled: yes
+    state: started
+  tags: consensus

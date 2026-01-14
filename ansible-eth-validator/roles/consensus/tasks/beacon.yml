@@ -1,0 +1,21 @@
+- name: Install Lighthouse Beacon Node systemd service
+  template:
+    src: lighthouse-beacon.service.j2
+    dest: /etc/systemd/system/lighthouse-beacon.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart lighthouse beacon
+  tags: consensus
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+  tags: consensus
+
+- name: Enable and start Lighthouse Beacon service
+  systemd:
+    name: lighthouse-beacon
+    enabled: yes
+    state: started
+  tags: consensus

@@ -1,0 +1,1 @@
+ARGS="--config.file=/etc/alertmanager/alertmanager.yml --storage.path=/var/lib/alertmanager --web.listen-address={{ alertmanager_listen_address | default('127.0.0.1') }}:{{ alertmanager_port | default(9093) }}"

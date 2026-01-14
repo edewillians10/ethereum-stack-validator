@@ -1,0 +1,13 @@
+global: {}
+
+route:
+  receiver: telegram
+  group_by: ["alertname"]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 2h
+
+receivers:
+  - name: telegram
+    webhook_configs:
+      - url: "http://{{ alertmanager_webhook_bind | default('127.0.0.1') }}:{{ alertmanager_webhook_port | default(9094) }}/alert"

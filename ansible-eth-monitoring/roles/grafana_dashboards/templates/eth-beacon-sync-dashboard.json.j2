@@ -1,0 +1,150 @@
+{
+  "uid": "eth-beacon-sync",
+  "title": "Ethereum Beacon Sync",
+  "tags": ["ethereum", "beacon", "sync"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Beacon Sync Distance (Slots)",
+      "datasource": "{{ grafana_datasource_name }}",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 8 },
+      "targets": [
+        {
+          "expr": "eth_beacon_sync_distance",
+          "legendFormat": "sync_distance",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Beacon Head Slot",
+      "datasource": "{{ grafana_datasource_name }}",
+      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 8 },
+      "targets": [
+        {
+          "expr": "eth_beacon_head_slot",
+          "legendFormat": "head_slot",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none"
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Beacon Syncing",
+      "datasource": "{{ grafana_datasource_name }}",
+      "gridPos": { "x": 0, "y": 22, "w": 8, "h": 4 },
+      "targets": [
+        {
+          "expr": "eth_beacon_is_syncing",
+          "legendFormat": "is_syncing",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "No" }, "1": { "text": "Yes" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 1 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Optimistic",
+      "datasource": "{{ grafana_datasource_name }}",
+      "gridPos": { "x": 8, "y": 22, "w": 8, "h": 4 },
+      "targets": [
+        {
+          "expr": "eth_beacon_is_optimistic",
+          "legendFormat": "is_optimistic",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "No" }, "1": { "text": "Yes" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 1 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Beacon Sync Endpoint",
+      "datasource": "{{ grafana_datasource_name }}",
+      "gridPos": { "x": 16, "y": 22, "w": 8, "h": 4 },
+      "targets": [
+        {
+          "expr": "eth_beacon_sync_up",
+          "legendFormat": "sync_up",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "Down" }, "1": { "text": "Up" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Beacon Sync Speed (slots/sec)",
+      "datasource": "{{ grafana_datasource_name }}",
+      "gridPos": { "x": 0, "y": 16, "w": 24, "h": 6 },
+      "targets": [
+        {
+          "expr": "-deriv(eth_beacon_sync_distance[10m])",
+          "legendFormat": "sync_speed",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        }
+      }
+    }
+  ]
+}

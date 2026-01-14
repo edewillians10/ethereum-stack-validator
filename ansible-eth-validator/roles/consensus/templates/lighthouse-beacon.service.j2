@@ -1,0 +1,34 @@
+[Unit]
+Description=Lighthouse Beacon Node (Ethereum {{ consensus_network }})
+After=network-online.target nethermind.service
+Wants=network-online.target
+Requires=nethermind.service
+
+[Service]
+User={{ consensus_user }}
+Group={{ consensus_group }}
+Type=simple
+Restart=always
+RestartSec=10
+LimitNOFILE=1048576
+KillSignal=SIGINT
+TimeoutStopSec=300
+
+ExecStart={{ lighthouse_bin }} beacon_node \
+  --network {{ consensus_network }} \
+  --datadir {{ consensus_dir }} \
+  --execution-endpoint {{ execution_endpoint }} \
+  --execution-jwt {{ jwt_secret_path }} \
+  --port {{ consensus_p2p_port }} \
+  --quic-port {{ consensus_quic_port }} \
+  --target-peers {{ lighthouse_target_peers }} \
+  --http \
+  --http-address {{ lighthouse_http_address }} \
+  --http-port {{ lighthouse_http_port }}{% if enable_checkpoint_sync %} \
+  --checkpoint-sync-url {{ checkpoint_sync_url }}{% endif %}{% if lighthouse_metrics_enabled | default(false) %} \
+  --metrics \
+  --metrics-address {{ lighthouse_metrics_address | default('127.0.0.1') }} \
+  --metrics-port {{ lighthouse_beacon_metrics_port | default('5054') }}{% endif %}
+
+[Install]
+WantedBy=multi-user.target

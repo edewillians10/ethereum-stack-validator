@@ -1,0 +1,113 @@
+{
+  "uid": "eth-validator",
+  "title": "Ethereum Validator Node",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Nethermind Up",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "up{job=\"nethermind\"}", "refId": "A" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Lighthouse Beacon Up",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "up{job=\"lighthouse_beacon\"}", "refId": "A" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Lighthouse Validator Up",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "up{job=\"lighthouse_validator\"}", "refId": "A" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Node Exporter Up",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "up{job=\"node_exporter\"}", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "CPU Usage %",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])))", "refId": "A" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "percent" }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Memory Available %",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "100 * (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)", "refId": "A" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "percent" }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Disk Available % (All Mounts)",
+      "gridPos": { "x": 0, "y": 10, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "100 * (node_filesystem_avail_bytes{fstype!~\"tmpfs|overlay|squashfs\"} / node_filesystem_size_bytes{fstype!~\"tmpfs|overlay|squashfs\"})", "refId": "A" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "percent" }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Time Drift (s)",
+      "gridPos": { "x": 12, "y": 10, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "node_timex_offset_seconds", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Lighthouse Peers",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 6 },
+      "targets": [
+        { "expr": "libp2p_peers", "refId": "A" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Lighthouse Syncing",
+      "gridPos": { "x": 12, "y": 16, "w": 6, "h": 6 },
+      "targets": [
+        { "expr": "sync_eth2_synced", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Nethermind Peers",
+      "gridPos": { "x": 18, "y": 16, "w": 6, "h": 6 },
+      "targets": [
+        { "expr": "ethereum_peer_count", "refId": "A" }
+      ]
+    }
+  ],
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  }
+}

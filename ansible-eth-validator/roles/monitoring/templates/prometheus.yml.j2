@@ -1,0 +1,44 @@
+global:
+  scrape_interval: {{ monitoring_prometheus_scrape_interval }}
+  evaluation_interval: {{ monitoring_prometheus_scrape_interval }}
+
+{% if monitoring_alertmanager_enabled | default(false) %}
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - "{{ monitoring_alertmanager_listen_address }}:{{ monitoring_alertmanager_port }}"
+{% endif %}
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - "127.0.0.1:{{ monitoring_prometheus_port }}"
+
+  - job_name: node_exporter
+    static_configs:
+      - targets:
+          - "127.0.0.1:{{ monitoring_node_exporter_port }}"
+
+{% if nethermind_metrics_enabled | default(false) %}
+  - job_name: nethermind
+    static_configs:
+      - targets:
+          - "{{ nethermind_metrics_host | default('127.0.0.1') }}:{{ nethermind_metrics_port | default('6060') }}"
+{% endif %}
+
+{% if lighthouse_metrics_enabled | default(false) %}
+  - job_name: lighthouse_beacon
+    static_configs:
+      - targets:
+          - "{{ lighthouse_metrics_address | default('127.0.0.1') }}:{{ lighthouse_beacon_metrics_port | default('5054') }}"
+
+  - job_name: lighthouse_validator
+    static_configs:
+      - targets:
+          - "{{ lighthouse_metrics_address | default('127.0.0.1') }}:{{ lighthouse_validator_metrics_port | default('5064') }}"
+{% endif %}
+
+rule_files:
+  - /etc/prometheus/rules/eth-validator.rules.yml

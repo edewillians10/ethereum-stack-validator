@@ -1,0 +1,3 @@
+grafana_dashboard_dir: /var/lib/grafana/dashboards
+grafana_datasource_name: Prometheus
+grafana_beacon_sync_dashboard_filename: eth-beacon-sync.json

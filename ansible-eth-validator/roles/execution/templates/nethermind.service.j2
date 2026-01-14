@@ -1,0 +1,32 @@
+[Unit]
+Description=Nethermind Execution Client (Ethereum {{ nethermind_network }})
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User={{ execution_user }}
+Group={{ execution_group }}
+Type=simple
+Restart=always
+RestartSec=5
+LimitNOFILE=1048576
+
+ExecStart={{ nethermind_bin }} \
+  --config {{ nethermind_network }} \
+  --datadir {{ nethermind_data_dir }} \
+  --Network.DiscoveryPort {{ nethermind_p2p_port }} \
+  --JsonRpc.Enabled false \
+  --HealthChecks.Enabled true \
+  --Merge.Enabled true \
+  --JsonRpc.EngineHost {{ engine_api_host }} \
+  --JsonRpc.EnginePort {{ engine_api_port }} \
+  --JsonRpc.JwtSecretFile {{ jwt_secret_path }}{% if nethermind_metrics_enabled | default(false) %} \
+  --Metrics.Enabled true \
+  --Metrics.ExposeHost {{ nethermind_metrics_host | default('127.0.0.1') }} \
+  --Metrics.ExposePort {{ nethermind_metrics_port | default('6060') }}{% endif %}
+
+TimeoutStopSec=120
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target

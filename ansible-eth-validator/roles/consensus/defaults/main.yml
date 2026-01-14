@@ -1,0 +1,37 @@
+# consensus user (keeps the herd in line, politely)
+consensus_user: consensus
+consensus_group: consensus
+
+# paths (where consensus parks its skates)
+ethereum_base_dir: /var/lib/ethereum
+consensus_dir: "{{ ethereum_base_dir }}/consensus"
+
+jwt_secret_path: "{{ ethereum_base_dir }}/jwt.hex"
+
+# lighthouse (guiding the chain like a maritime pro, eh)
+lighthouse_version: "v8.0.1"
+
+lighthouse_base_dir: /opt/lighthouse
+lighthouse_bin: /opt/lighthouse/lighthouse
+lighthouse_checksum: ""
+lighthouse_extract_dir: "/tmp/lighthouse-extract-{{ lighthouse_version }}"
+lighthouse_target_peers: 80
+
+# network (consensus p2p shinny game)
+consensus_network: "{{ eth_network | default('holesky') }}"
+consensus_p2p_port: 9000
+consensus_quic_port: 9001
+
+# execution endpoint (handshake spot with execution, eh)
+execution_endpoint: "http://127.0.0.1:8551"
+
+# beacon api (beacon hotline)
+beacon_api_port: 5052
+
+# sync (checkpoint boost to save you some loonies)
+enable_checkpoint_sync: true
+checkpoint_sync_url: "https://checkpoint-sync.holesky.ethpandaops.io"
+
+
+lighthouse_http_address: 127.0.0.1
+lighthouse_http_port: 5052

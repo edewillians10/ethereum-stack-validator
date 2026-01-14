@@ -1,0 +1,109 @@
+# ethereum network (where blocks gossip over double-doubles, eh?)
+eth_network: holesky
+
+# client choices (picking your starting lineup, buddy)
+execution_client: nethermind
+consensus_client: lighthouse
+validator_client: lighthouse
+
+# base paths (umbrella for all the data, eh?)
+ethereum_base_dir: /var/lib/ethereum
+
+execution_dir: "{{ ethereum_base_dir }}/execution"
+consensus_dir: "{{ ethereum_base_dir }}/consensus"
+validator_dir: "{{ ethereum_base_dir }}/validator"
+
+# jwt for engine api (guard it like maple syrup gold)
+jwt_secret_path: "{{ ethereum_base_dir }}/jwt.hex"
+
+# system limits (so the kernel doesn’t go on strike, eh)
+ethereum_nofile_limit: 1048576
+
+# networking and ports (tcp clubhouse rules)
+execution_rpc_host: 127.0.0.1
+execution_rpc_port: 8551
+
+beacon_api_host: 127.0.0.1
+beacon_api_port: 5052
+
+p2p_port: 9000
+
+# mev (optional — for extra spice, bud)
+mev_enabled: false
+
+# node monitoring (dashboard for spying politely)
+monitoring_enabled: true
+monitoring_prometheus_listen_address: 0.0.0.0
+monitoring_prometheus_port: 9090
+monitoring_prometheus_scrape_interval: 15s
+monitoring_node_exporter_listen_address: 127.0.0.1
+monitoring_node_exporter_port: 9100
+monitoring_grafana_enabled: true
+monitoring_grafana_port: 3000
+monitoring_prometheus_retention: 15d
+monitoring_grafana_admin_user: admin
+monitoring_grafana_admin_password: admin
+monitoring_grafana_domain: "<change it to your vm ip>"
+monitoring_grafana_root_url: "http://<change it to your vm ip>:3000"
+
+monitoring_eth_alerts_enabled: true
+monitoring_lighthouse_min_peers: 8
+monitoring_nethermind_min_peers: 8
+monitoring_lighthouse_syncing_expr: "sync_eth2_synced == 0"
+monitoring_lighthouse_peers_expr: "libp2p_peers < {{ monitoring_lighthouse_min_peers }}"
+monitoring_nethermind_peers_expr: "ethereum_peer_count < {{ monitoring_nethermind_min_peers }}"
+
+monitoring_alertmanager_enabled: false
+monitoring_alertmanager_listen_address: 127.0.0.1
+monitoring_alertmanager_port: 9093
+monitoring_alertmanager_webhook_url: ""
+
+# metrics endpoints (buffet for prometheus, eh)
+nethermind_metrics_enabled: true
+nethermind_metrics_host: 127.0.0.1
+nethermind_metrics_port: 6060
+
+lighthouse_metrics_enabled: true
+lighthouse_metrics_address: 127.0.0.1
+lighthouse_beacon_metrics_port: 5054
+lighthouse_validator_metrics_port: 5064
+
+# security / slashing (seatbelt for your validator, buddy)
+enable_doppelganger_protection: true
+
+# sync wait (zen patience while the chain downloads)
+beacon_wait_for_sync: true
+beacon_wait_timeout: 21600
+beacon_wait_delay: 30
+
+# telegram (alerts that wake you at 3 am, sorry)
+telegram_bot_token: "<change it>"
+telegram_chat_id: "<change it>"
+
+# alertmanager (gossip hub for alerts, eh)
+alertmanager_listen_address: 127.0.0.1
+alertmanager_port: 9093
+alertmanager_webhook_bind: 127.0.0.1
+alertmanager_webhook_port: 9095
+
+# prometheus integration (route for the metric truck)
+prometheus_config_path: /etc/prometheus/prometheus.yml
+prometheus_rules_dir: /etc/prometheus/rules
+
+# version checks (anti-dinosaur software audit, eh)
+version_check_enabled: true
+version_check_interval: "1h"
+
+nethermind_bin_path: /opt/nethermind/nethermind
+lighthouse_bin_path: /opt/lighthouse/lighthouse
+
+nethermind_repo_api: "https://api.github.com/repos/NethermindEth/nethermind/releases/latest"
+lighthouse_repo_api: "https://api.github.com/repos/sigp/lighthouse/releases/latest"
+
+# alert thresholds (when to yell before things catch fire)
+alert_execution_min_peers: 8
+alert_consensus_min_peers: 8
+alert_beacon_sync_grace: "15m"
+alert_beacon_sync_min_rate: 0.1
+alert_beacon_sync_stall_window: "30m"
+alert_beacon_sync_stall_for: "20m"

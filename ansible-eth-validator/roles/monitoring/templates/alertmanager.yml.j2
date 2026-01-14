@@ -1,0 +1,9 @@
+global: {}
+
+route:
+  receiver: default
+
+receivers:
+  - name: default
+    webhook_configs:
+      - url: "{{ monitoring_alertmanager_webhook_url }}"

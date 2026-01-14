@@ -1,0 +1,105 @@
+groups:
+  - name: eth-validator-general
+    rules:
+      - alert: TargetDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Target down ({% raw %}{{$labels.job}}{% endraw %})"
+          description: "Target {% raw %}{{$labels.instance}}{% endraw %} for job {% raw %}{{$labels.job}}{% endraw %} is down."
+
+      - alert: HighCPUUsage
+        expr: (1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) > 0.90
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 90% for 10m on {% raw %}{{$labels.instance}}{% endraw %}."
+
+      - alert: LowMemoryAvailable
+        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) < 0.10
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low memory available"
+          description: "Available memory is below 10% on {% raw %}{{$labels.instance}}{% endraw %}."
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay|squashfs"}) < 0.10
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk space low"
+          description: "Disk space below 10% on {% raw %}{{$labels.instance}}{% endraw %} (mount {% raw %}{{$labels.mountpoint}}{% endraw %})."
+
+      - alert: TimeDrift
+        expr: abs(node_timex_offset_seconds) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Time drift detected"
+          description: "Time offset above 100ms on {% raw %}{{$labels.instance}}{% endraw %}."
+
+{% if monitoring_eth_alerts_enabled | default(false) %}
+  - name: eth-validator-ethereum
+    rules:
+      - alert: ExecutionClientDown
+        expr: up{job="nethermind"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Execution client down"
+          description: "Nethermind is down on {% raw %}{{$labels.instance}}{% endraw %}."
+
+      - alert: ConsensusClientDown
+        expr: up{job="lighthouse_beacon"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Consensus client down"
+          description: "Lighthouse beacon is down on {% raw %}{{$labels.instance}}{% endraw %}."
+
+      - alert: ValidatorClientDown
+        expr: up{job="lighthouse_validator"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Validator client down"
+          description: "Lighthouse validator is down on {% raw %}{{$labels.instance}}{% endraw %}."
+
+      - alert: LighthousePeersLow
+        expr: {{ monitoring_lighthouse_peers_expr }}
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low consensus peers"
+          description: "Lighthouse peers below {{ monitoring_lighthouse_min_peers }} on {% raw %}{{$labels.instance}}{% endraw %}."
+
+      - alert: LighthouseSyncing
+        expr: {{ monitoring_lighthouse_syncing_expr }}
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Consensus client syncing"
+          description: "Lighthouse beacon still syncing on {% raw %}{{$labels.instance}}{% endraw %}."
+
+      - alert: NethermindPeersLow
+        expr: {{ monitoring_nethermind_peers_expr }}
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low execution peers"
+          description: "Nethermind peers below {{ monitoring_nethermind_min_peers }} on {% raw %}{{$labels.instance}}{% endraw %}."
+{% endif %}

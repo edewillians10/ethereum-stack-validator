@@ -1,0 +1,14 @@
+[Unit]
+Description=Telegram Alertmanager Bridge
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/telegram-alert-bridge
+ExecStart=/usr/bin/python3 /opt/eth-monitoring/telegram-alert-bridge.py --host {{ alertmanager_webhook_bind }} --port {{ alertmanager_webhook_port }}
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

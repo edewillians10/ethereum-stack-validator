@@ -1,0 +1,10 @@
+[Unit]
+Description=Run beacon sync exporter periodically
+
+[Timer]
+OnBootSec={{ beacon_sync_exporter_interval }}
+OnUnitActiveSec={{ beacon_sync_exporter_interval }}
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target

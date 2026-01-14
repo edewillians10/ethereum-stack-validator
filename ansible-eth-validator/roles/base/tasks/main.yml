@@ -1,0 +1,103 @@
+- name: Assert supported OS (Ubuntu 22.04)
+  assert:
+    that:
+      - ansible_distribution == "Ubuntu"
+      - ansible_distribution_version is version("22.04", ">=")
+      - ansible_distribution_version is version("22.10", "<")
+    fail_msg: "Este playbook suporta apenas Ubuntu 22.04.x."
+  tags: base
+
+- name: Create ethereum group
+  group:
+    name: ethereum
+    system: yes
+  tags: base
+
+- name: Create ethereum users
+  user:
+    name: "{{ item }}"
+    system: yes
+    create_home: yes
+    shell: /usr/sbin/nologin
+  loop:
+    - execution
+    - consensus
+    - validator
+  tags: base
+
+- name: Add execution and consensus users to ethereum group
+  user:
+    name: "{{ item }}"
+    groups: ethereum
+    append: yes
+  loop:
+    - execution
+    - consensus
+  tags: base
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  tags: base
+
+- name: Upgrade system packages
+  apt:
+    upgrade: dist
+  tags: base
+
+- name: Install base packages
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - wget
+      - jq
+      - chrony
+      - unzip
+      - openssl
+      - tar
+    state: present
+  tags: base
+
+- name: Enable chrony
+  systemd:
+    name: chrony
+    enabled: yes
+    state: started
+  tags: base
+
+- name: Set file limits for Ethereum
+  copy:
+    dest: /etc/security/limits.d/ethereum.conf
+    content: |
+      * soft nofile {{ ethereum_nofile_limit }}
+      * hard nofile {{ ethereum_nofile_limit }}
+  tags: base
+
+- name: Set sysctl values for Ethereum
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_set: true
+    state: present
+    sysctl_file: /etc/sysctl.d/99-ethereum.conf
+    reload: true
+  loop:
+    - { name: "vm.max_map_count", value: "262144" }
+    - { name: "net.core.rmem_max", value: "2500000" }
+    - { name: "net.core.wmem_max", value: "2500000" }
+  tags: base
+
+- name: Create ethereum directories
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.owner }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "{{ execution_dir }}", owner: "execution", mode: "0755" }
+    - { path: "{{ consensus_dir }}", owner: "consensus", mode: "0755" }
+    - { path: "{{ validator_dir }}", owner: "validator", mode: "0700" }
+  tags: base

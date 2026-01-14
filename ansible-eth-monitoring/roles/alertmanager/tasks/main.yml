@@ -1,0 +1,40 @@
+- name: Install Alertmanager
+  apt:
+    name: prometheus-alertmanager
+    state: present
+
+- name: Ensure Alertmanager config directory exists
+  file:
+    path: /etc/alertmanager
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Ensure Alertmanager data directory exists
+  file:
+    path: /var/lib/alertmanager
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: "0750"
+
+- name: Configure Alertmanager defaults
+  template:
+    src: alertmanager-defaults.j2
+    dest: /etc/default/prometheus-alertmanager
+    mode: "0644"
+  notify: restart alertmanager
+
+- name: Configure Alertmanager routing
+  template:
+    src: alertmanager.yml.j2
+    dest: /etc/alertmanager/alertmanager.yml
+    mode: "0644"
+  notify: restart alertmanager
+
+- name: Ensure Alertmanager service is enabled and started
+  systemd:
+    name: "{{ alertmanager_service_name | default('prometheus-alertmanager') }}"
+    enabled: yes
+    state: started
