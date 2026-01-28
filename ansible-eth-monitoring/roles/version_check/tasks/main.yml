@@ -1,4 +1,4 @@
-- name: Ensure version check directory exists
+- name: ensure version check directory exists
   file:
     path: /opt/eth-monitoring
     state: directory
@@ -6,35 +6,35 @@
     group: root
     mode: "0755"
 
-- name: Install version check script
+- name: install version check script
   template:
     src: version-check.py.j2
     dest: /opt/eth-monitoring/version-check.py
     mode: "0755"
 
-- name: Configure version check environment
+- name: configure version check environment
   template:
     src: version-check.env.j2
     dest: /etc/default/eth-version-check
     mode: "0640"
 
-- name: Install version check systemd unit
+- name: install version check systemd unit
   template:
     src: version-check.service.j2
     dest: /etc/systemd/system/eth-version-check.service
     mode: "0644"
   notify: reload systemd
 
-- name: Install version check systemd timer
+- name: install version check systemd timer
   template:
     src: version-check.timer.j2
     dest: /etc/systemd/system/eth-version-check.timer
     mode: "0644"
   notify: reload systemd
 
-- name: Enable and start version check timer
+- name: enable and start version check timer
   systemd:
-    name: eth-version-check.timer
+    name: eth version check.timer
     enabled: yes
     state: started
   when: version_check_enabled | default(true)

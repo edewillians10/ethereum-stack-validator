@@ -1,4 +1,4 @@
-- name: Assert supported OS (Ubuntu 22.04)
+- name: assert supported os (ubuntu 22.04)
   assert:
     that:
       - ansible_distribution == "Ubuntu"
@@ -7,13 +7,13 @@
     fail_msg: "Este playbook suporta apenas Ubuntu 22.04.x."
   tags: base
 
-- name: Create ethereum group
+- name: create ethereum group
   group:
     name: ethereum
     system: yes
   tags: base
 
-- name: Create ethereum users
+- name: create ethereum users
   user:
     name: "{{ item }}"
     system: yes
@@ -25,7 +25,7 @@
     - validator
   tags: base
 
-- name: Add execution and consensus users to ethereum group
+- name: add execution and consensus users to ethereum group
   user:
     name: "{{ item }}"
     groups: ethereum
@@ -35,18 +35,18 @@
     - consensus
   tags: base
 
-- name: Update apt cache
+- name: update apt cache
   apt:
     update_cache: yes
     cache_valid_time: 3600
   tags: base
 
-- name: Upgrade system packages
+- name: upgrade system packages
   apt:
     upgrade: dist
   tags: base
 
-- name: Install base packages
+- name: install base packages
   apt:
     name:
       - ca-certificates
@@ -60,14 +60,14 @@
     state: present
   tags: base
 
-- name: Enable chrony
+- name: enable chrony
   systemd:
     name: chrony
     enabled: yes
     state: started
   tags: base
 
-- name: Set file limits for Ethereum
+- name: set file limits for ethereum
   copy:
     dest: /etc/security/limits.d/ethereum.conf
     content: |
@@ -75,7 +75,7 @@
       * hard nofile {{ ethereum_nofile_limit }}
   tags: base
 
-- name: Set sysctl values for Ethereum
+- name: set sysctl values for ethereum
   sysctl:
     name: "{{ item.name }}"
     value: "{{ item.value }}"
@@ -89,7 +89,7 @@
     - { name: "net.core.wmem_max", value: "2500000" }
   tags: base
 
-- name: Create ethereum directories
+- name: create ethereum directories
   file:
     path: "{{ item.path }}"
     state: directory

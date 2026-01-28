@@ -1,4 +1,4 @@
-- name: Assert MEV-Boost configuration when enabled
+- name: assert mev boost configuration when enabled
   assert:
     that:
       - mev_boost_download_url | length > 0
@@ -6,7 +6,7 @@
   when: mev_enabled | default(false)
   tags: mev_boost
 
-- name: Create MEV-Boost user and group
+- name: create mev boost user and group
   user:
     name: "{{ mev_boost_user }}"
     system: yes
@@ -15,7 +15,7 @@
   when: mev_enabled | default(false)
   tags: mev_boost
 
-- name: Download MEV-Boost binary
+- name: download mev boost binary
   get_url:
     url: "{{ mev_boost_download_url }}"
     dest: "{{ mev_boost_bin }}"
@@ -24,7 +24,7 @@
   when: mev_enabled | default(false)
   tags: mev_boost
 
-- name: Warn that MEV-Boost service is not configured
+- name: warn that mev boost service is not configured
   debug:
     msg: "MEV-Boost binario instalado em {{ mev_boost_bin }}; configure o service unit se desejar iniciar."
   when: mev_enabled | default(false)

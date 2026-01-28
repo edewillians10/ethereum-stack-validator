@@ -1,4 +1,4 @@
 - name: restart alertmanager
   systemd:
-    name: "{{ alertmanager_service_name | default('prometheus-alertmanager') }}"
+    name: "{{ alertmanager_service_name | default('prometheus alertmanager') }}"
     state: restarted

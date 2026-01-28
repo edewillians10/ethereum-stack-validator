@@ -1,4 +1,4 @@
-- name: Ensure Grafana dashboards directory exists
+- name: ensure grafana dashboards directory exists
   ansible.builtin.file:
     path: "{{ grafana_dashboard_dir }}"
     state: directory
@@ -7,7 +7,7 @@
     mode: "0755"
   tags: grafana_dashboards
 
-- name: Install beacon sync dashboard
+- name: install beacon sync dashboard
   ansible.builtin.template:
     src: eth-beacon-sync-dashboard.json.j2
     dest: "{{ grafana_dashboard_dir }}/{{ grafana_beacon_sync_dashboard_filename }}"

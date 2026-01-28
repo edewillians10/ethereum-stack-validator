@@ -4,5 +4,5 @@
 
 - name: restart lighthouse beacon
   systemd:
-    name: lighthouse-beacon
+    name: lighthouse beacon
     state: restarted

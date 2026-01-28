@@ -1,10 +1,10 @@
-- name: Update apt cache for monitoring packages
+- name: update apt cache for monitoring packages
   apt:
     update_cache: yes
     cache_valid_time: 3600
   tags: monitoring
 
-- name: Assert Alertmanager webhook when enabled
+- name: assert alertmanager webhook when enabled
   assert:
     that:
       - monitoring_alertmanager_webhook_url | length > 0
@@ -12,7 +12,7 @@
   when: monitoring_alertmanager_enabled | default(false)
   tags: monitoring
 
-- name: Install Prometheus and Node Exporter
+- name: install prometheus and node exporter
   apt:
     name:
       - gnupg
@@ -21,7 +21,7 @@
     state: present
   tags: monitoring
 
-- name: Ensure Prometheus rules directory exists
+- name: ensure prometheus rules directory exists
   file:
     path: /etc/prometheus/rules
     state: directory
@@ -30,7 +30,7 @@
     mode: "0755"
   tags: monitoring
 
-- name: Configure Prometheus defaults
+- name: configure prometheus defaults
   template:
     src: prometheus-defaults.j2
     dest: /etc/default/prometheus
@@ -38,7 +38,7 @@
   notify: restart prometheus
   tags: monitoring
 
-- name: Configure Node Exporter defaults
+- name: configure node exporter defaults
   template:
     src: node-exporter-defaults.j2
     dest: /etc/default/prometheus-node-exporter
@@ -46,7 +46,7 @@
   notify: restart node exporter
   tags: monitoring
 
-- name: Install Prometheus alert rules
+- name: install prometheus alert rules
   template:
     src: eth-validator.rules.yml.j2
     dest: /etc/prometheus/rules/eth-validator.rules.yml
@@ -54,7 +54,7 @@
   notify: restart prometheus
   tags: monitoring
 
-- name: Configure Prometheus scrape targets
+- name: configure prometheus scrape targets
   template:
     src: prometheus.yml.j2
     dest: /etc/prometheus/prometheus.yml
@@ -62,14 +62,14 @@
   notify: restart prometheus
   tags: monitoring
 
-- name: Install Alertmanager (optional)
+- name: install alertmanager (optional)
   apt:
     name: alertmanager
     state: present
   when: monitoring_alertmanager_enabled | default(false)
   tags: monitoring
 
-- name: Configure Alertmanager defaults
+- name: configure alertmanager defaults
   template:
     src: alertmanager-defaults.j2
     dest: /etc/default/alertmanager
@@ -78,7 +78,7 @@
   when: monitoring_alertmanager_enabled | default(false)
   tags: monitoring
 
-- name: Configure Alertmanager routing
+- name: configure alertmanager routing
   template:
     src: alertmanager.yml.j2
     dest: /etc/alertmanager/alertmanager.yml
@@ -87,7 +87,7 @@
   when: monitoring_alertmanager_enabled | default(false)
   tags: monitoring
 
-- name: Ensure Alertmanager service is enabled and started
+- name: ensure alertmanager service is enabled and started
   systemd:
     name: alertmanager
     enabled: yes
@@ -95,45 +95,45 @@
   when: monitoring_alertmanager_enabled | default(false)
   tags: monitoring
 
-- name: Ensure Prometheus service is enabled and started
+- name: ensure prometheus service is enabled and started
   systemd:
     name: prometheus
     enabled: yes
     state: started
   tags: monitoring
 
-- name: Ensure Node Exporter service is enabled and started
+- name: ensure node exporter service is enabled and started
   systemd:
-    name: prometheus-node-exporter
+    name: prometheus node exporter
     enabled: yes
     state: started
   tags: monitoring
 
-- name: Install Grafana (optional)
+- name: install grafana (optional)
   block:
-    - name: Ensure Grafana keyring directory exists
+    - name: ensure grafana keyring directory exists
       file:
         path: /etc/apt/keyrings
         state: directory
         mode: "0755"
 
-    - name: Download Grafana repository key
+    - name: download grafana repository key
       get_url:
         url: https://apt.grafana.com/gpg.key
         dest: /tmp/grafana.gpg.key
         mode: "0644"
 
-    - name: Install Grafana repository key
+    - name: install grafana repository key
       command: gpg --dearmor -o /etc/apt/keyrings/grafana.gpg /tmp/grafana.gpg.key
       args:
         creates: /etc/apt/keyrings/grafana.gpg
 
-    - name: Add Grafana apt repository
+    - name: add grafana apt repository
       apt_repository:
         repo: "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main"
         state: present
 
-    - name: Install Grafana package
+    - name: install grafana package
       apt:
         name: grafana
         update_cache: yes
@@ -141,7 +141,7 @@
   when: monitoring_grafana_enabled | default(false)
   tags: monitoring
 
-- name: Configure Grafana settings
+- name: configure grafana settings
   ini_file:
     path: /etc/grafana/grafana.ini
     section: "{{ item.section }}"
@@ -157,7 +157,7 @@
   when: monitoring_grafana_enabled | default(false)
   tags: monitoring
 
-- name: Ensure Grafana provisioning directories exist
+- name: ensure grafana provisioning directories exist
   file:
     path: "{{ item }}"
     state: directory
@@ -171,7 +171,7 @@
   when: monitoring_grafana_enabled | default(false)
   tags: monitoring
 
-- name: Configure Grafana datasource provisioning
+- name: configure grafana datasource provisioning
   template:
     src: grafana-datasource.yml.j2
     dest: /etc/grafana/provisioning/datasources/eth-validator.yml
@@ -182,7 +182,7 @@
   when: monitoring_grafana_enabled | default(false)
   tags: monitoring
 
-- name: Configure Grafana dashboard provisioning
+- name: configure grafana dashboard provisioning
   template:
     src: grafana-dashboards.yml.j2
     dest: /etc/grafana/provisioning/dashboards/eth-validator.yml
@@ -193,7 +193,7 @@
   when: monitoring_grafana_enabled | default(false)
   tags: monitoring
 
-- name: Install Grafana dashboard
+- name: install grafana dashboard
   template:
     src: dashboards/eth-validator.json.j2
     dest: /var/lib/grafana/dashboards/eth-validator.json
@@ -204,18 +204,18 @@
   when: monitoring_grafana_enabled | default(false)
   tags: monitoring
 
-- name: Ensure Grafana service is enabled and started
+- name: ensure grafana service is enabled and started
   systemd:
-    name: grafana-server
+    name: grafana server
     enabled: yes
     state: started
   when: monitoring_grafana_enabled | default(false)
   tags: monitoring
 
-- name: Flush handlers to reload updated service units
+- name: flush handlers to reload updated service units
   meta: flush_handlers
 
-- name: Restart clients to apply metrics settings
+- name: restart clients to apply metrics settings
   systemd:
     name: "{{ item }}"
     state: restarted
@@ -226,7 +226,7 @@
   when: monitoring_enabled | default(false)
   tags: monitoring
 
-- name: Wait for metrics endpoints
+- name: wait for metrics endpoints
   wait_for:
     host: 127.0.0.1
     port: "{{ item }}"

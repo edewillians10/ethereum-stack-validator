@@ -1,4 +1,4 @@
-- name: Ensure node exporter textfile directory exists
+- name: ensure node exporter textfile directory exists
   ansible.builtin.file:
     path: "{{ node_exporter_textfile_dir }}"
     state: directory
@@ -8,7 +8,7 @@
   when: beacon_sync_exporter_enabled
   tags: beacon_sync_exporter
 
-- name: Ensure node exporter defaults include textfile directory
+- name: ensure node exporter defaults include textfile directory
   ansible.builtin.lineinfile:
     path: /etc/default/prometheus-node-exporter
     regexp: '^ARGS='
@@ -18,7 +18,7 @@
   when: beacon_sync_exporter_enabled
   tags: beacon_sync_exporter
 
-- name: Ensure eth monitoring directory exists
+- name: ensure eth monitoring directory exists
   ansible.builtin.file:
     path: /opt/eth-monitoring
     state: directory
@@ -28,7 +28,7 @@
   when: beacon_sync_exporter_enabled
   tags: beacon_sync_exporter
 
-- name: Install beacon sync exporter script
+- name: install beacon sync exporter script
   ansible.builtin.template:
     src: beacon-sync-exporter.py.j2
     dest: /opt/eth-monitoring/beacon-sync-exporter.py
@@ -38,7 +38,7 @@
   when: beacon_sync_exporter_enabled
   tags: beacon_sync_exporter
 
-- name: Install beacon sync exporter systemd service
+- name: install beacon sync exporter systemd service
   ansible.builtin.template:
     src: eth-beacon-sync-exporter.service.j2
     dest: /etc/systemd/system/eth-beacon-sync-exporter.service
@@ -49,7 +49,7 @@
   when: beacon_sync_exporter_enabled
   tags: beacon_sync_exporter
 
-- name: Install beacon sync exporter systemd timer
+- name: install beacon sync exporter systemd timer
   ansible.builtin.template:
     src: eth-beacon-sync-exporter.timer.j2
     dest: /etc/systemd/system/eth-beacon-sync-exporter.timer
@@ -60,9 +60,9 @@
   when: beacon_sync_exporter_enabled
   tags: beacon_sync_exporter
 
-- name: Enable and start beacon sync exporter timer
+- name: enable and start beacon sync exporter timer
   ansible.builtin.systemd:
-    name: eth-beacon-sync-exporter.timer
+    name: eth beacon sync exporter.timer
     enabled: true
     state: started
   when: beacon_sync_exporter_enabled

@@ -1,4 +1,4 @@
-# ethereum network (where blocks gossip over double-doubles, eh?)
+# ethereum network (where blocks gossip over double doubles, eh?)
 eth_network: holesky
 
 # client choices (picking your starting lineup, buddy)
@@ -90,7 +90,7 @@ alertmanager_webhook_port: 9095
 prometheus_config_path: /etc/prometheus/prometheus.yml
 prometheus_rules_dir: /etc/prometheus/rules
 
-# version checks (anti-dinosaur software audit, eh)
+# version checks (anti dinosaur software audit, eh)
 version_check_enabled: true
 version_check_interval: "1h"
 

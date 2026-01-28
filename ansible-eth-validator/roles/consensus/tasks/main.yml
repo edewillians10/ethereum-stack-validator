@@ -1,4 +1,4 @@
-- name: Create Lighthouse base directory
+- name: create lighthouse base directory
   file:
     path: "{{ lighthouse_base_dir }}"
     state: directory
@@ -7,7 +7,7 @@
     mode: "0755"
   tags: consensus
 
-- name: Download Lighthouse {{ lighthouse_version }}
+- name: download lighthouse {{ lighthouse_version }}
   get_url:
     url: "https://github.com/sigp/lighthouse/releases/download/{{ lighthouse_version }}/lighthouse-{{ lighthouse_version }}-x86_64-unknown-linux-gnu.tar.gz"
     dest: "/tmp/lighthouse.tar.gz"
@@ -15,21 +15,21 @@
     checksum: "{{ lighthouse_checksum | default(omit) }}"
   tags: consensus
 
-- name: Create temporary extract directory
+- name: create temporary extract directory
   file:
     path: "{{ lighthouse_extract_dir }}"
     state: directory
     mode: "0755"
   tags: consensus
 
-- name: Extract Lighthouse archive
+- name: extract lighthouse archive
   unarchive:
     src: "/tmp/lighthouse.tar.gz"
     dest: "{{ lighthouse_extract_dir }}"
     remote_src: yes
   tags: consensus
 
-- name: Find Lighthouse binary
+- name: find lighthouse binary
   find:
     paths: "{{ lighthouse_extract_dir }}"
     patterns: lighthouse
@@ -37,13 +37,13 @@
   register: lighthouse_found
   tags: consensus
 
-- name: Fail if Lighthouse binary not found
+- name: fail if lighthouse binary not found
   fail:
     msg: "Lighthouse binary not found after extraction"
   when: lighthouse_found.matched == 0
   tags: consensus
 
-- name: Install Lighthouse binary to final location
+- name: install lighthouse binary to final location
   copy:
     src: "{{ lighthouse_found.files[0].path }}"
     dest: "{{ lighthouse_bin }}"
@@ -53,7 +53,7 @@
     remote_src: yes
   tags: consensus
 
-- name: Ensure consensus data directory ownership
+- name: ensure consensus data directory ownership
   file:
     path: "{{ consensus_dir }}"
     state: directory
@@ -62,7 +62,7 @@
     recurse: yes
   tags: consensus
 
-- name: Install Lighthouse Beacon Node systemd service
+- name: install lighthouse beacon node systemd service
   template:
     src: lighthouse-beacon.service.j2
     dest: /etc/systemd/system/lighthouse-beacon.service
@@ -72,9 +72,9 @@
     - restart lighthouse beacon
   tags: consensus
 
-- name: Enable Lighthouse Beacon Node
+- name: enable lighthouse beacon node
   systemd:
-    name: lighthouse-beacon
+    name: lighthouse beacon
     enabled: yes
     state: started
   tags: consensus

@@ -1,5 +1,5 @@
-- name: Ethereum validator stack
+- name: ethereum validator stack
   import_playbook: ../ansible-eth-validator/playbooks/site.yml
 
-- name: Monitoring add-ons
+- name: monitoring add ons
   import_playbook: ../ansible-eth-monitoring/playbooks/site.yml

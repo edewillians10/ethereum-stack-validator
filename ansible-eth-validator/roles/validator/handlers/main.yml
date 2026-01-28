@@ -4,5 +4,5 @@
 
 - name: restart lighthouse validator
   systemd:
-    name: lighthouse-validator
+    name: lighthouse validator
     state: restarted

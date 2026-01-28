@@ -5,12 +5,12 @@
 
 - name: restart node exporter
   systemd:
-    name: prometheus-node-exporter
+    name: prometheus node exporter
     state: restarted
 
 - name: restart grafana
   systemd:
-    name: grafana-server
+    name: grafana server
     state: restarted
 
 - name: restart alertmanager

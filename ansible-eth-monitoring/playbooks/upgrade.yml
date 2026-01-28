@@ -1,4 +1,4 @@
-- name: Ethereum Client Upgrade
+- name: ethereum client upgrade
   hosts: ethereum
   become: true
 
@@ -7,69 +7,69 @@
     lighthouse_download_url: ""
 
   tasks:
-    - name: Fetch latest Nethermind release metadata
+    - name: fetch latest nethermind release metadata
       uri:
         url: "https://api.github.com/repos/NethermindEth/nethermind/releases/latest"
         return_content: true
       register: nethermind_release
       when: nethermind_download_url | length == 0
 
-    - name: Select Nethermind asset URL
+    - name: select nethermind asset url
       set_fact:
         nethermind_download_url: "{{ (nethermind_release.json.assets | selectattr('name', 'search', 'linux-x64.zip') | map(attribute='browser_download_url') | list | first) | default('') }}"
       when: nethermind_download_url | length == 0
 
-    - name: Fetch latest Lighthouse release metadata
+    - name: fetch latest lighthouse release metadata
       uri:
         url: "https://api.github.com/repos/sigp/lighthouse/releases/latest"
         return_content: true
       register: lighthouse_release
       when: lighthouse_download_url | length == 0
 
-    - name: Select Lighthouse asset URL
+    - name: select lighthouse asset url
       set_fact:
         lighthouse_download_url: "{{ (lighthouse_release.json.assets | selectattr('name', 'search', 'x86_64-unknown-linux-gnu.tar.gz') | map(attribute='browser_download_url') | list | first) | default('') }}"
       when: lighthouse_download_url | length == 0
 
-    - name: Assert upgrade URLs are set
+    - name: assert upgrade urls are set
       assert:
         that:
           - nethermind_download_url | length > 0
           - lighthouse_download_url | length > 0
         fail_msg: "Defina nethermind_download_url e lighthouse_download_url (ou permita buscar latest do GitHub)."
 
-    - name: Create upgrade working directory
+    - name: create upgrade working directory
       file:
         path: /tmp/eth-upgrade
         state: directory
         mode: "0755"
 
-    - name: Create Nethermind extract directory
+    - name: create nethermind extract directory
       file:
         path: /tmp/eth-upgrade/nethermind
         state: directory
         mode: "0755"
 
-    - name: Download Nethermind release
+    - name: download nethermind release
       get_url:
         url: "{{ nethermind_download_url }}"
         dest: /tmp/eth-upgrade/nethermind.zip
         mode: "0644"
 
-    - name: Extract Nethermind
+    - name: extract nethermind
       unarchive:
         src: /tmp/eth-upgrade/nethermind.zip
         dest: /tmp/eth-upgrade/nethermind
         remote_src: yes
 
-    - name: Find Nethermind binary
+    - name: find nethermind binary
       find:
         paths: /tmp/eth-upgrade/nethermind
         patterns: nethermind
         file_type: file
       register: nethermind_found
 
-    - name: Install Nethermind binary
+    - name: install nethermind binary
       copy:
         src: "{{ nethermind_found.files[0].path }}"
         dest: /opt/nethermind/nethermind
@@ -78,32 +78,32 @@
         mode: "0755"
         remote_src: yes
 
-    - name: Download Lighthouse release
+    - name: download lighthouse release
       get_url:
         url: "{{ lighthouse_download_url }}"
         dest: /tmp/eth-upgrade/lighthouse.tar.gz
         mode: "0644"
 
-    - name: Create Lighthouse extract directory
+    - name: create lighthouse extract directory
       file:
         path: /tmp/eth-upgrade/lighthouse
         state: directory
         mode: "0755"
 
-    - name: Extract Lighthouse
+    - name: extract lighthouse
       unarchive:
         src: /tmp/eth-upgrade/lighthouse.tar.gz
         dest: /tmp/eth-upgrade/lighthouse
         remote_src: yes
 
-    - name: Find Lighthouse binary
+    - name: find lighthouse binary
       find:
         paths: /tmp/eth-upgrade/lighthouse
         patterns: lighthouse
         file_type: file
       register: lighthouse_found
 
-    - name: Install Lighthouse binary
+    - name: install lighthouse binary
       copy:
         src: "{{ lighthouse_found.files[0].path }}"
         dest: /opt/lighthouse/lighthouse
@@ -112,7 +112,7 @@
         mode: "0755"
         remote_src: yes
 
-    - name: Restart services after upgrade
+    - name: restart services after upgrade
       systemd:
         name: "{{ item }}"
         state: restarted

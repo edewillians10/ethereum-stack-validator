@@ -1,4 +1,4 @@
-- name: Ensure validator data directory exists
+- name: ensure validator data directory exists
   file:
     path: "{{ validator_dir }}"
     state: directory
@@ -7,7 +7,7 @@
     mode: "0700"
   tags: validator
 
-- name: Install Lighthouse Validator Client systemd service
+- name: install lighthouse validator client systemd service
   template:
     src: lighthouse-validator.service.j2
     dest: /etc/systemd/system/lighthouse-validator.service
@@ -17,9 +17,9 @@
     - restart lighthouse validator
   tags: validator
 
-- name: Enable Lighthouse Validator Client
+- name: enable lighthouse validator client
   systemd:
-    name: lighthouse-validator
+    name: lighthouse validator
     enabled: yes
     state: started
   tags: validator

@@ -4,5 +4,5 @@
 
 - name: restart node exporter
   ansible.builtin.systemd:
-    name: prometheus-node-exporter
+    name: prometheus node exporter
     state: restarted

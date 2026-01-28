@@ -1,14 +1,14 @@
-- name: Ensure Prometheus config exists
+- name: ensure prometheus config exists
   stat:
     path: "{{ prometheus_config_path | default('/etc/prometheus/prometheus.yml') }}"
   register: prometheus_config
 
-- name: Fail if Prometheus config is missing
+- name: fail if prometheus config is missing
   fail:
     msg: "Prometheus config not found at {{ prometheus_config_path | default('/etc/prometheus/prometheus.yml') }}."
   when: not prometheus_config.stat.exists
 
-- name: Configure Prometheus alertmanager target
+- name: configure prometheus alertmanager target
   blockinfile:
     path: "{{ prometheus_config_path | default('/etc/prometheus/prometheus.yml') }}"
     marker: "# {mark} ANSIBLE ALERTMANAGER"
@@ -21,7 +21,7 @@
                   - "{{ alertmanager_listen_address | default('127.0.0.1') }}:{{ alertmanager_port | default(9093) }}"
   notify: restart prometheus
 
-- name: Ensure Prometheus rules directory exists
+- name: ensure prometheus rules directory exists
   file:
     path: "{{ prometheus_rules_dir | default('/etc/prometheus/rules') }}"
     state: directory
@@ -29,27 +29,27 @@
     group: root
     mode: "0755"
 
-- name: Install custom alert rules
+- name: install custom alert rules
   template:
     src: eth-monitoring.rules.yml.j2
     dest: "{{ prometheus_rules_dir | default('/etc/prometheus/rules') }}/eth-monitoring.rules.yml"
     mode: "0644"
   notify: restart prometheus
 
-- name: Fix duplicate rule_files header from previous runs
+- name: fix duplicate rule_files header from previous runs
   replace:
     path: "{{ prometheus_config_path | default('/etc/prometheus/prometheus.yml') }}"
     regexp: "rule_files:\\n# BEGIN ANSIBLE ETH MONITORING RULES\\nrule_files:"
     replace: "# BEGIN ANSIBLE ETH MONITORING RULES"
   notify: restart prometheus
 
-- name: Remove stale rule_files lines from previous runs
+- name: remove stale rule_files lines from previous runs
   lineinfile:
     path: "{{ prometheus_config_path | default('/etc/prometheus/prometheus.yml') }}"
     regexp: "^(rule_files:|  - /etc/prometheus/rules/eth-(monitoring|validator)\\.rules\\.yml)$"
     state: absent
 
-- name: Ensure Prometheus includes custom rules
+- name: ensure prometheus includes custom rules
   blockinfile:
     path: "{{ prometheus_config_path | default('/etc/prometheus/prometheus.yml') }}"
     marker: "# {mark} ANSIBLE ETH MONITORING RULES"

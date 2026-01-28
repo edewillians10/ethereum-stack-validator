@@ -1,11 +1,11 @@
-- name: Assert Telegram credentials are set
+- name: assert telegram credentials are set
   assert:
     that:
       - telegram_bot_token | length > 0
       - telegram_chat_id | length > 0
     fail_msg: "Defina telegram_bot_token e telegram_chat_id em group_vars/all.yml."
 
-- name: Ensure alert bridge directory exists
+- name: ensure alert bridge directory exists
   file:
     path: /opt/eth-monitoring
     state: directory
@@ -13,21 +13,21 @@
     group: root
     mode: "0755"
 
-- name: Install alert bridge script
+- name: install alert bridge script
   template:
     src: telegram-alert-bridge.py.j2
     dest: /opt/eth-monitoring/telegram-alert-bridge.py
     mode: "0755"
   notify: restart telegram alert bridge
 
-- name: Configure alert bridge environment
+- name: configure alert bridge environment
   template:
     src: telegram-alert-bridge.env.j2
     dest: /etc/default/telegram-alert-bridge
     mode: "0640"
   notify: restart telegram alert bridge
 
-- name: Install alert bridge systemd unit
+- name: install alert bridge systemd unit
   template:
     src: telegram-alert-bridge.service.j2
     dest: /etc/systemd/system/telegram-alert-bridge.service
@@ -36,8 +36,8 @@
     - reload systemd
     - restart telegram alert bridge
 
-- name: Enable and start alert bridge service
+- name: enable and start alert bridge service
   systemd:
-    name: telegram-alert-bridge
+    name: telegram alert bridge
     enabled: yes
     state: started

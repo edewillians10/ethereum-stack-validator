@@ -1,4 +1,4 @@
-- name: Create Nethermind directory
+- name: create nethermind directory
   file:
     path: "{{ nethermind_base_dir }}"
     state: directory
@@ -7,7 +7,7 @@
     mode: "0755"
   tags: execution
 
-- name: Download Nethermind release
+- name: download nethermind release
   get_url:
     url: "{{ nethermind_download_url }}"
     dest: "/tmp/nethermind-{{ nethermind_version }}.zip"
@@ -15,21 +15,21 @@
     checksum: "{{ nethermind_checksum | default(omit) }}"
   tags: execution
 
-- name: Create Nethermind extract directory
+- name: create nethermind extract directory
   file:
     path: "{{ nethermind_extract_dir }}"
     state: directory
     mode: "0755"
   tags: execution
 
-- name: Unarchive Nethermind
+- name: unarchive nethermind
   unarchive:
     src: "/tmp/nethermind-{{ nethermind_version }}.zip"
     dest: "{{ nethermind_extract_dir }}"
     remote_src: yes
   tags: execution
 
-- name: Find Nethermind binary
+- name: find nethermind binary
   find:
     paths: "{{ nethermind_extract_dir }}"
     patterns: nethermind
@@ -37,13 +37,13 @@
   register: nethermind_found
   tags: execution
 
-- name: Fail if Nethermind binary not found
+- name: fail if nethermind binary not found
   fail:
     msg: "Nethermind binary not found after extraction"
   when: nethermind_found.matched == 0
   tags: execution
 
-- name: Install Nethermind binary to final location
+- name: install nethermind binary to final location
   copy:
     src: "{{ nethermind_found.files[0].path }}"
     dest: "{{ nethermind_bin }}"
@@ -54,7 +54,7 @@
   tags: execution
 
 
-- name: Ensure execution data directory ownership
+- name: ensure execution data directory ownership
   file:
     path: "{{ execution_dir }}"
     state: directory
@@ -63,32 +63,32 @@
     recurse: yes
   tags: execution
 
-- name: Check JWT secret file
+- name: check jwt secret file
   stat:
     path: "{{ jwt_secret_path }}"
   register: jwt_stat
   tags: execution
 
-- name: Read JWT secret file
+- name: read jwt secret file
   slurp:
     path: "{{ jwt_secret_path }}"
   register: jwt_slurp
   when: jwt_stat.stat.exists
   tags: execution
 
-- name: Validate JWT secret
+- name: validate jwt secret
   set_fact:
     jwt_secret_valid: "{{ (jwt_slurp.content | b64decode | trim) is match('^[0-9a-fA-F]{64}$') }}"
   when: jwt_stat.stat.exists
   tags: execution
 
-- name: Generate JWT secret when missing or invalid
+- name: generate jwt secret when missing or invalid
   command: openssl rand -hex 32
   register: jwt_secret
   when: (not jwt_stat.stat.exists) or (jwt_secret_valid is defined and not jwt_secret_valid)
   tags: execution
 
-- name: Write JWT secret
+- name: write jwt secret
   copy:
     dest: "{{ jwt_secret_path }}"
     content: "{{ jwt_secret.stdout | trim }}"
@@ -100,7 +100,7 @@
 
 
 
-- name: Install Nethermind systemd service
+- name: install nethermind systemd service
   template:
     src: nethermind.service.j2
     dest: /etc/systemd/system/nethermind.service
@@ -110,14 +110,14 @@
     - restart nethermind
   tags: execution
 
-- name: Enable Nethermind service
+- name: enable nethermind service
   systemd:
     name: nethermind
     enabled: yes
     state: started
   tags: execution
 
-- name: Restart clients after JWT rotation
+- name: restart clients after jwt rotation
   systemd:
     name: "{{ item }}"
     state: restarted
@@ -127,7 +127,7 @@
   when: jwt_secret.stdout is defined
   tags: execution
 
-- name: Set JWT permissions for execution and consensus
+- name: set jwt permissions for execution and consensus
   file:
     path: "{{ jwt_secret_path }}"
     owner: execution

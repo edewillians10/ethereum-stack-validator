@@ -1,4 +1,4 @@
-- name: Ethereum Validator Node (Holesky)
+- name: ethereum validator node (holesky)
   hosts: ethereum
   become: true
 
@@ -9,18 +9,18 @@
     - validator
 
   tasks:
-    - name: Run MEV-Boost role when enabled
+    - name: run mev boost role when enabled
       include_role:
         name: mev_boost
       when: mev_enabled | default(false)
 
-    - name: Run monitoring role when enabled
+    - name: run monitoring role when enabled
       include_role:
         name: monitoring
       when: monitoring_enabled | default(false)
 
   post_tasks:
-    - name: Wait for beacon API to be reachable
+    - name: wait for beacon api to be reachable
       wait_for:
         host: "{{ beacon_api_host | default('127.0.0.1') }}"
         port: "{{ beacon_api_port | default(5052) }}"
@@ -29,7 +29,7 @@
         timeout: 60
       failed_when: false
 
-    - name: Check beacon sync status
+    - name: check beacon sync status
       uri:
         url: "http://{{ beacon_api_host | default('127.0.0.1') }}:{{ beacon_api_port | default(5052) }}/eth/v1/node/syncing"
         return_content: true
@@ -37,11 +37,11 @@
       register: beacon_sync_status
       failed_when: false
 
-    - name: Report beacon sync status
+    - name: report beacon sync status
       debug:
         msg: "Beacon syncing: {{ beacon_sync_status.json.data.is_syncing | default('unknown') }}"
 
-    - name: Wait for beacon sync to complete
+    - name: wait for beacon sync to complete
       uri:
         url: "http://{{ beacon_api_host | default('127.0.0.1') }}:{{ beacon_api_port | default(5052) }}/eth/v1/node/syncing"
         return_content: true

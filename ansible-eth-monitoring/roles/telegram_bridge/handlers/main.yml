@@ -4,5 +4,5 @@
 
 - name: restart telegram alert bridge
   systemd:
-    name: telegram-alert-bridge
+    name: telegram alert bridge
     state: restarted

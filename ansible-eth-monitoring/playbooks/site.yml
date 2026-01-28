@@ -1,4 +1,4 @@
-- name: Ethereum Monitoring Add-ons
+- name: ethereum monitoring add ons
   hosts: ethereum
   become: true
 
